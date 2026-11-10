@@ -7,8 +7,8 @@ Plataforma que monitora compras públicas de saúde (medicamentos, equipamentos 
 ```mermaid
 flowchart LR
     A[PNCP - API pública] --> B[Airflow - coleta agendada]
-    B --> C[(PostgreSQL)]
-    subgraph C[PostgreSQL]
+    B --> C1
+    subgraph DB[PostgreSQL]
         C1[bronze: dados crus] --> C2[silver: dados limpos e padronizados] --> C3[gold: preços comparados]
     end
     C3 --> D[FastAPI - API de consulta]
