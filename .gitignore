@@ -1,0 +1,18 @@
+# Ambiente virtual
+.venv/
+
+# Segredos (nunca vão para o GitHub)
+.env
+
+# Cache do Python
+__pycache__/
+*.py[cod]
+
+# Cache das ferramentas
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Arquivos que o Windows cria ao copiar para o WSL
+*:Zone.Identifier
