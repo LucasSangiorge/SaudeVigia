@@ -31,19 +31,29 @@ flowchart LR
 
 ```
 SaudeVigia/
-├── app/                  # API FastAPI (config, banco, models, schemas, rotas)
-├── pipelines/            # coleta e transformação dos dados
-├── dags/                 # DAGs do Airflow
-├── migrations/           # migrations do Alembic (+ alembic.ini na raiz)
-├── tests/
+├── backend/                  # tudo que é Python
+│   ├── app/                  # API FastAPI
+│   │   ├── core/             #   configurações (.env)
+│   │   ├── db/               #   conexão com o banco
+│   │   ├── models/           #   tabelas (SQLAlchemy)
+│   │   ├── schemas/          #   entrada e saída da API (Pydantic)
+│   │   └── routers/          #   rotas
+│   ├── dados/                # coleta e transformação (PNCP → bronze → silver → gold)
+│   ├── dags/                 # DAGs do Airflow (só chamam o que está em dados/)
+│   ├── migrations/           # migrations do Alembic
+│   ├── tests/
+│   ├── Dockerfile
+│   ├── alembic.ini
+│   ├── pyproject.toml        # Ruff + pytest
+│   ├── requirements.txt / requirements-dev.txt
+│   └── .env.example
+├── frontend/                 # páginas com os gráficos
 ├── docs/
-├── .github/workflows/    # CI/CD
-├── Dockerfile
-├── compose.yaml
-├── pyproject.toml
-├── requirements.txt
-└── .env.example
+├── .github/workflows/        # CI/CD
+└── compose.yaml              # orquestra os serviços (banco, API, Airflow, frontend)
 ```
+
+As pastas são criadas quando a primeira tarefa precisar delas (sem pastas vazias no repositório).
 
 ## Decisões em aberto
 - Como os dados coletados localmente pelo Airflow chegam ao banco de produção (Neon).
