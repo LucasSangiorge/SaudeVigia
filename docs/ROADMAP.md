@@ -9,7 +9,7 @@ Organização: Jira (espaço SV, Scrum, sprints de 2 semanas). Uma branch e um P
 - [x] SV-4 Criar esqueleto do projeto (venv, requirements, .gitignore, .env.example)
 - [x] SV-5 Configurar Ruff com pyproject.toml e format on save
 - [x] SV-6 Criar API mínima com rota /health e primeiro teste
-- [ ] SV-7 Criar pipeline de CI no GitHub Actions (Ruff + pytest)
+- [x] SV-7 Criar pipeline de CI no GitHub Actions (Ruff + pytest)
 - [ ] SV-8 Proteger a branch main (PR obrigatório com CI verde)
 
 ### Sprint 2 (24/11 a 07/12/2026): ambiente em Docker e API no ar
