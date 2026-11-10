@@ -2,3 +2,11 @@
 fastapi==0.162.4
 # servidor que roda a API
 uvicorn[standard]==0.54.0
+# ORM: mapeia classes Python para tabelas
+sqlalchemy==2.1.8
+# driver do PostgreSQL (psycopg 3)
+psycopg[binary]==3.3.8
+# migrations versionadas do banco
+alembic==1.20.1
+# lê as configurações do .env com validação
+pydantic-settings==2.16.2

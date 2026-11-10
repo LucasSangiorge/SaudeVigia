@@ -34,12 +34,12 @@ SaudeVigia/
 ├── app/                  # API FastAPI (config, banco, models, schemas, rotas)
 ├── pipelines/            # coleta e transformação dos dados
 ├── dags/                 # DAGs do Airflow
-├── alembic/              # migrations
+├── migrations/           # migrations do Alembic (+ alembic.ini na raiz)
 ├── tests/
 ├── docs/
 ├── .github/workflows/    # CI/CD
 ├── Dockerfile
-├── docker-compose.yaml
+├── compose.yaml
 ├── pyproject.toml
 ├── requirements.txt
 └── .env.example
