@@ -8,7 +8,7 @@ Organização: Jira (espaço SV, Scrum, sprints de 2 semanas). Uma branch e um P
 - [x] SV-1 Configurar Git no WSL e criar repositório no GitHub
 - [x] SV-4 Criar esqueleto do projeto (venv, requirements, .gitignore, .env.example)
 - [x] SV-5 Configurar Ruff com pyproject.toml e format on save
-- [ ] SV-6 Criar API mínima com rota /health e primeiro teste
+- [x] SV-6 Criar API mínima com rota /health e primeiro teste
 - [ ] SV-7 Criar pipeline de CI no GitHub Actions (Ruff + pytest)
 - [ ] SV-8 Proteger a branch main (PR obrigatório com CI verde)
 
