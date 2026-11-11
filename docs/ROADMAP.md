@@ -13,9 +13,8 @@ Organização: Jira (espaço SV, Scrum, sprints de 2 semanas). Uma branch e um P
 - [x] SV-8 Proteger a branch main (PR obrigatório com CI verde)
 
 ### Sprint 2 (24/11 a 07/12/2026): ambiente em Docker e API no ar
-- [ ] Criar Dockerfile da API
-- [ ] Configurar Docker Compose com API e PostgreSQL
-- [ ] Configurar settings, conexão com o banco e Alembic
+- [x] SV-9 Configurar Docker Compose com PostgreSQL, settings e Alembic
+- [ ] Criar Dockerfile da API e adicionar a API ao Docker Compose
 - [ ] Rodar testes no container e validar build do Docker no CI
 - [ ] Configurar deploy automático (CD) no Render com banco no Neon
 

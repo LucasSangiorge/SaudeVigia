@@ -1,4 +1,0 @@
-#framework da API.
-fastapi==0.162.4
-# servidor que roda a API
-uvicorn[standard]==0.54.0

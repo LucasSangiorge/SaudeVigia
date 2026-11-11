@@ -1,0 +1,17 @@
+services:
+  db:
+    image: postgres:18
+    # POSTGRES_USER, POSTGRES_PASSWORD e POSTGRES_DB vêm do .env do backend
+    env_file: ./backend/.env
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  pgdata:
