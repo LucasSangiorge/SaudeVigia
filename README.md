@@ -26,15 +26,26 @@ pip install -r requirements-dev.txt
 cp .env.example .env          # depois troque a senha no .env
 ```
 
+No Windows (Git Bash), use `python` no lugar de `python3` e ative com `source .venv/Scripts/activate`.
+
 Rotina do dia (a partir da pasta `backend/`):
 
 ```bash
-docker compose up -d          # sobe o PostgreSQL
+docker compose up -d db       # sobe só o PostgreSQL
 alembic upgrade head          # aplica as migrations pendentes
-uvicorn app.main:app --reload # API em http://localhost:8000/docs
+uvicorn app.main:app --reload # API em http://127.0.0.1:8000/docs (recarrega ao salvar)
 pytest                        # testes
 ruff check . && ruff format . # lint e formatação
-docker compose down           # desliga o banco (os dados ficam salvos)
+docker compose down           # desliga tudo (os dados do banco ficam salvos)
 ```
+
+Para rodar a API dentro do Docker, do jeito que vai para produção:
+
+```bash
+docker compose up -d --build  # monta a imagem da API e sobe API + banco
+docker compose logs -f api    # acompanha os logs (Ctrl+C para sair)
+```
+
+A API do contêiner e o `uvicorn` do venv usam a mesma porta 8000: rode um de cada vez.
 
 O `docker compose` funciona de dentro de `backend/`: ele sobe as pastas até achar o `compose.yaml` da raiz.

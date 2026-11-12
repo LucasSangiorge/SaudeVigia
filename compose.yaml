@@ -13,5 +13,20 @@ services:
       timeout: 5s
       retries: 10
 
+  api:
+    # Monta a imagem a partir do backend/Dockerfile
+    build: ./backend
+    env_file: ./backend/.env
+    environment:
+      # Dentro da rede do Compose o banco se chama "db" e usa a porta interna
+      DB_HOST: db
+      DB_PORT: 5432
+    ports:
+      - "127.0.0.1:8000:8000"
+    # Só sobe a API depois que o healthcheck do banco passar
+    depends_on:
+      db:
+        condition: service_healthy
+
 volumes:
   pgdata:

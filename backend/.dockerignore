@@ -1,0 +1,19 @@
+# O que NÃO entra na imagem (mesma ideia do .gitignore)
+
+# Ambiente virtual do Windows/Linux: a imagem instala os próprios pacotes
+.venv/
+
+# Segredos: as variáveis chegam pelo env_file do compose.yaml
+.env
+
+# Caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Arquivos do Docker não precisam estar dentro da imagem
+Dockerfile
+.dockerignore
