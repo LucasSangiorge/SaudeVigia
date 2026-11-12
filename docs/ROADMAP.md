@@ -14,18 +14,20 @@ Organização: Jira (espaço SV, Scrum, sprints de 2 semanas). Uma branch e um P
 
 ### Sprint 2 (24/11 a 07/12/2026): ambiente em Docker e API no ar
 - [x] SV-9 Configurar Docker Compose com PostgreSQL, settings e Alembic
-- [x] Criar Dockerfile da API e adicionar a API ao Docker Compose
-- [x] Rodar testes no container e validar build do Docker no CI
-- [ ] Configurar deploy automático (CD) no Render com banco no Neon
+- [x] SV-10 Criar Dockerfile da API e adicionar a API ao Docker Compose
+- [x] SV-11 Configurar settings, conexão com o banco e Alembic (entregue junto com a SV-9)
+- [x] SV-12 Rodar testes no container e validar build do Docker no CI
+- [ ] SV-13 Configurar deploy automático (CD) no Render com banco no Neon
+- [x] SV-21 Usar 127.0.0.1 no DATABASE_URL do .env.example
 
 ### Sprint 3 (08/12 a 21/12/2026): Airflow coletando dados do PNCP
-- [ ] Explorar a API de consulta do PNCP e documentar os endpoints
-- [ ] Adicionar Airflow ao Docker Compose
-- [ ] Criar DAG que coleta compras de saúde do PNCP
-- [ ] Gravar os dados coletados no PostgreSQL
-- [ ] Configurar retries e analisar logs de uma falha proposital
-- [ ] Testar o carregamento das DAGs no pytest e no CI
-- [ ] Documentar no README como subir o ambiente
+- [ ] SV-14 Explorar a API de consulta do PNCP e documentar os endpoints
+- [ ] SV-15 Adicionar Airflow ao Docker Compose
+- [ ] SV-16 Criar DAG que coleta compras de saúde do PNCP
+- [ ] SV-17 Gravar os dados coletados no PostgreSQL
+- [ ] SV-18 Configurar retries e analisar logs de uma falha proposital
+- [ ] SV-19 Testar o carregamento das DAGs no pytest e no CI
+- [ ] SV-20 Documentar no README como subir o ambiente
 
 ## Fase 2 — Produto (planejamento inicial, sujeito a ajustes)
 - Sprint 4: coleta completa e incremental (bronze para silver)
