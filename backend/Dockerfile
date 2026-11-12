@@ -1,5 +1,12 @@
+# Multi-stage: um Dockerfile com 3 etapas (stages).
+#   base -> o que dev e prod têm em comum (Python + pacotes da API)
+#   dev  -> base + pytest/Ruff, para rodar os testes dentro do contêiner
+#   prod -> base + código, sem ferramentas de teste (imagem que vai pro ar)
+# Sem --target, o Docker monta a ÚLTIMA etapa (prod). É o que o Compose usa.
+
+# ---------- base ----------
 # Imagem oficial do Python, versão enxuta (sem compiladores e extras)
-FROM python:3.14-slim
+FROM python:3.14-slim AS base
 
 # Não gera arquivos .pyc e mostra os logs na hora (sem buffer)
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -12,7 +19,22 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Depois o código (o .dockerignore tira .venv, .env e caches)
+# ---------- dev ----------
+# docker build --target dev -t saudevigia-api:dev backend
+# docker run --rm saudevigia-api:dev
+FROM base AS dev
+
+COPY requirements-dev.txt .
+RUN pip install --no-cache-dir -r requirements-dev.txt
+
+COPY . .
+
+CMD ["pytest"]
+
+# ---------- prod ----------
+FROM base AS prod
+
+# O código (o .dockerignore tira .venv, .env e caches)
 COPY . .
 
 # Roda sem ser root: se alguém invadir a API, não manda no contêiner

@@ -23,6 +23,17 @@ services:
       DB_PORT: 5432
     ports:
       - "127.0.0.1:8000:8000"
+    # Saudável = /health respondeu. A imagem slim não tem curl, então usa Python
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
     # Só sobe a API depois que o healthcheck do banco passar
     depends_on:
       db:
