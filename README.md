@@ -48,4 +48,11 @@ docker compose logs -f api    # acompanha os logs (Ctrl+C para sair)
 
 A API do contêiner e o `uvicorn` do venv usam a mesma porta 8000: rode um de cada vez.
 
+Para rodar os testes dentro da imagem (o mesmo que o CI faz), a partir da raiz:
+
+```bash
+docker build --target dev -t saudevigia-api:dev backend
+docker run --rm saudevigia-api:dev
+```
+
 O `docker compose` funciona de dentro de `backend/`: ele sobe as pastas até achar o `compose.yaml` da raiz.

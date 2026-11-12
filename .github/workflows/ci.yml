@@ -33,3 +33,31 @@ jobs:
 
       - name: Testes
         run: pytest
+
+  docker:
+    name: Docker (build, testes e /health)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Testes dentro do contêiner (etapa dev)
+        run: |
+          docker build --target dev -t saudevigia-api:dev backend
+          docker run --rm saudevigia-api:dev
+
+      - name: Subir API e banco com o Compose (etapa prod)
+        run: |
+          cp backend/.env.example backend/.env
+          docker compose up -d --build --wait
+
+      - name: Chamar o /health
+        run: curl --fail --silent --show-error http://127.0.0.1:8000/health
+
+      - name: Logs dos contêineres (só se algo falhou)
+        if: failure()
+        run: docker compose logs
+
+      - name: Derrubar os contêineres
+        if: always()
+        run: docker compose down -v
