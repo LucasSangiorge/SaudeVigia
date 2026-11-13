@@ -43,4 +43,7 @@ USER appuser
 
 EXPOSE 8000
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Ao ligar: aplica as migrations pendentes e só então sobe a API.
+# ${PORT:-8000}: o Render escolhe a porta pela variável PORT; local usa 8000.
+# exec: o uvicorn assume o lugar do sh e recebe o sinal de desligar do Docker.
+CMD ["sh", "-c", "alembic upgrade head && exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
