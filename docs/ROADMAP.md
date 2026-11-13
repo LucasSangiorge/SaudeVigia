@@ -21,7 +21,7 @@ Organização: Jira (espaço SV, Scrum, sprints de 2 semanas). Uma branch e um P
 - [x] SV-21 Usar 127.0.0.1 no DATABASE_URL do .env.example
 
 ### Sprint 3 (08/12 a 21/12/2026): Airflow coletando dados do PNCP
-- [x] SV-14 Explorar a API de consulta do PNCP e documentar os endpoints
+- [x] SV-14 Explorar a API de consulta do PNCP e documentar os endpoints.
 - [ ] SV-15 Adicionar Airflow ao Docker Compose
 - [ ] SV-16 Criar DAG que coleta compras de saúde do PNCP
 - [ ] SV-17 Gravar os dados coletados no PostgreSQL
