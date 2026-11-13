@@ -11,7 +11,7 @@ import httpx
 URL_CONSULTA = "https://pncp.gov.br/api/consulta/v1/contratacoes/publicacao"
 DIAS_PARA_TRAS = 10
 PREGAO_ELETRONICO = 6
-BELO_HORIZONTE = "3106200"  #código IBGE do município
+BELO_HORIZONTE = "3106200"  # código IBGE do município
 PALAVRAS_SAUDE = ["medicamento"]
 
 
@@ -24,7 +24,7 @@ def buscar_contratacoes(data_inicial: str, data_final: str, pagina: int = 1) -> 
         "pagina": pagina,
         "tamanhoPagina": 50,
     }
-    resposta = httpx.get(URL_CONSULTA, params=params, timeout= 60)
+    resposta = httpx.get(URL_CONSULTA, params=params, timeout=60)
     resposta.raise_for_status()
     return resposta.json()
 
@@ -51,7 +51,6 @@ def main() -> None:
             orgao = compra["orgaoEntidade"]["razaoSocial"]
             print(f"- {orgao}: {compra['objetoCompra'][:100]}")
 
+
 if __name__ == "__main__":
     main()
-
-
