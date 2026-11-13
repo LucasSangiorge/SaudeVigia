@@ -56,3 +56,19 @@ docker run --rm saudevigia-api:dev
 ```
 
 O `docker compose` funciona de dentro de `backend/`: ele sobe as pastas até achar o `compose.yaml` da raiz.
+
+## Deploy (produção)
+
+A API roda no **Render** (imagem `prod` do `backend/Dockerfile`) e o banco no **Neon** (PostgreSQL gerenciado), os dois na região US East (Virgínia). Cada merge na `main` publica a versão nova; ao ligar, o contêiner roda `alembic upgrade head` antes de subir a API.
+
+As credenciais do Neon ficam só nas *Environment Variables* do Render, nunca no Git nem no `.env` local:
+
+| Variável | Valor |
+|---|---|
+| `APP_ENV` | `production` |
+| `POSTGRES_USER` | usuário do Neon (ex.: `neondb_owner`) |
+| `POSTGRES_PASSWORD` | senha do Neon |
+| `POSTGRES_DB` | banco do Neon (ex.: `neondb`) |
+| `DB_HOST` | host do Neon (ex.: `ep-xxxx.us-east-1.aws.neon.tech`) |
+| `DB_PORT` | `5432` |
+| `DB_SSLMODE` | `require` |
