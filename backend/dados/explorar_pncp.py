@@ -29,6 +29,22 @@ def buscar_contratacoes(data_inicial: str, data_final: str, pagina: int = 1) -> 
     return resposta.json()
 
 
+def buscar_todas_as_paginas(data_inicial: str, data_final: str) -> list[dict]:
+    compras = []
+    pagina = 1
+
+    while True:
+        resultado = buscar_contratacoes(data_inicial, data_final, pagina)
+        compras.extend(resultado["data"])
+        print(f"Página {pagina} de {resultado['totalPaginas']} lida")
+
+        if resultado["paginasRestantes"] == 0:
+            break
+        pagina += 1
+
+    return compras
+
+
 def eh_saude(objeto: str) -> bool:
     texto = objeto.lower()
     return any(palavra in texto for palavra in PALAVRAS_SAUDE)
@@ -42,11 +58,10 @@ def main() -> None:
     data_final = hoje.strftime("%Y%m%d")
     print(f"Período: {data_inicial} a {data_final}")
 
-    resultado = buscar_contratacoes(data_inicial, data_final)
-    print(f"Pregões em BH: {resultado['totalRegistros']}")
-    print(f"Páginas de 50: {resultado['totalPaginas']}\n")
+    compras = buscar_todas_as_paginas(data_inicial, data_final)
+    print(f"Pregões em BH: {len(compras)}\n")
 
-    for compra in resultado["data"]:
+    for compra in compras:
         if eh_saude(compra["objetoCompra"]):
             orgao = compra["orgaoEntidade"]["razaoSocial"]
             print(f"- {orgao}: {compra['objetoCompra'][:100]}")
