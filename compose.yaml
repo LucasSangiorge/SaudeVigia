@@ -1,4 +1,44 @@
+# Sobe o projeto inteiro: banco + API + Airflow.
+#   docker compose up -d            -> tudo
+#   docker compose up -d db api     -> só banco e API (mais leve, sem o Airflow)
+
+# ---------- molde do Airflow ----------
+# Chaves que começam com "x-" não viram contêiner: são só um molde.
+# &airflow-common dá um nome ao molde; cada serviço do Airflow cola ele com
+# "<<: *airflow-common" e acrescenta o que é só dele (command, ports...).
+# Base: compose oficial do Airflow 3.3.0, trocando Celery por LocalExecutor.
+x-airflow-common: &airflow-common
+  image: apache/airflow:3.3.0
+  # Segredos (FERNET_KEY e JWT_SECRET) vêm do .env, que não vai para o Git
+  env_file: ./backend/.env
+  environment: &airflow-common-env
+    # LocalExecutor: o scheduler roda as tarefas em subprocessos na mesma
+    # máquina. Dispensa Redis e workers do Celery (leve para um PC só).
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    # Login na tela do Airflow (usuário criado pelo airflow-init)
+    AIRFLOW__CORE__AUTH_MANAGER: airflow.providers.fab.auth_manager.fab_auth_manager.FabAuthManager
+    # Banco de METADADOS do Airflow (execuções, status). Não é o banco do PNCP.
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@airflow-db/airflow
+    # Por onde as tarefas falam com o Airflow (nome do serviço abaixo)
+    AIRFLOW__CORE__EXECUTION_API_SERVER_URL: http://airflow-api-server:8080/execution/
+    AIRFLOW__API_AUTH__JWT_ISSUER: airflow
+    # DAG nova nasce pausada: você liga na tela quando quiser
+    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "true"
+    # Sem as dezenas de DAGs de exemplo (pesam no CPU e poluem a tela)
+    AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+  volumes:
+    # Nossas DAGs: o que você salvar em backend/dags aparece no Airflow
+    - ./backend/dags:/opt/airflow/dags
+    # Logs num volume do Docker, para não criar pastas soltas no projeto
+    - airflow-logs:/opt/airflow/logs
+  # Usuário padrão da imagem do Airflow (UID 50000), grupo root
+  user: "50000:0"
+  depends_on: &airflow-common-depends-on
+    airflow-db:
+      condition: service_healthy
+
 services:
+  # ---------- banco e API do SaudeVigia ----------
   db:
     image: postgres:18
     # POSTGRES_USER, POSTGRES_PASSWORD e POSTGRES_DB vêm do .env do backend
@@ -39,5 +79,99 @@ services:
       db:
         condition: service_healthy
 
+  # ---------- Airflow ----------
+  # Banco de metadados do Airflow, separado do "db" (dados do produto).
+  # Usuário e senha fixos de propósito: sem "ports", ele não é alcançável de
+  # fora do Docker, só pelos contêineres do Airflow na rede interna.
+  # postgres:16 é a versão usada no compose oficial do Airflow 3.3.0.
+  airflow-db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    volumes:
+      - airflow-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "airflow"]
+      interval: 10s
+      retries: 5
+      start_period: 5s
+    restart: always
+
+  # Roda uma vez e desliga: cria as tabelas do Airflow (migrate), o usuário
+  # de login e acerta o dono das pastas. Os outros serviços esperam ele.
+  airflow-init:
+    <<: *airflow-common
+    # Root só aqui, para poder trocar o dono das pastas (chown)
+    user: "0:0"
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - |
+        mkdir -p /opt/airflow/logs /opt/airflow/dags
+        chown -R "50000:0" /opt/airflow/logs
+        # O entrypoint da imagem lê as variáveis _AIRFLOW_* abaixo
+        /entrypoint airflow version
+    environment:
+      <<: *airflow-common-env
+      _AIRFLOW_DB_MIGRATE: "true"
+      _AIRFLOW_WWW_USER_CREATE: "true"
+      # Login só local (porta presa no 127.0.0.1)
+      _AIRFLOW_WWW_USER_USERNAME: airflow
+      _AIRFLOW_WWW_USER_PASSWORD: airflow
+
+  # Tela web e API do Airflow: http://localhost:8080
+  airflow-api-server:
+    <<: *airflow-common
+    command: api-server
+    ports:
+      - "127.0.0.1:8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/api/v2/monitor/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: always
+    depends_on:
+      <<: *airflow-common-depends-on
+      airflow-init:
+        condition: service_completed_successfully
+
+  # O "relógio": decide quando cada tarefa roda e executa (LocalExecutor)
+  airflow-scheduler:
+    <<: *airflow-common
+    command: scheduler
+    healthcheck:
+      test: ["CMD-SHELL", 'airflow jobs check --job-type SchedulerJob --hostname "$${HOSTNAME}"']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: always
+    depends_on:
+      <<: *airflow-common-depends-on
+      airflow-init:
+        condition: service_completed_successfully
+
+  # Lê a pasta dags/ e transforma os arquivos .py em DAGs
+  airflow-dag-processor:
+    <<: *airflow-common
+    command: dag-processor
+    healthcheck:
+      test: ["CMD-SHELL", 'airflow jobs check --job-type DagProcessorJob --hostname "$${HOSTNAME}"']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: always
+    depends_on:
+      <<: *airflow-common-depends-on
+      airflow-init:
+        condition: service_completed_successfully
+
 volumes:
   pgdata:
+  airflow-db-data:
+  airflow-logs:
