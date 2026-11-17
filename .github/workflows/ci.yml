@@ -49,7 +49,8 @@ jobs:
       - name: Subir API e banco com o Compose (etapa prod)
         run: |
           cp backend/.env.example backend/.env
-          docker compose up -d --build --wait
+          # Só db e api: o Airflow é pesado e tem validação própria (SV-19)
+          docker compose up -d --build --wait db api
 
       - name: Chamar o /health
         run: curl --fail --silent --show-error http://127.0.0.1:8000/health
