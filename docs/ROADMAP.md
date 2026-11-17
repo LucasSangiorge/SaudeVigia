@@ -22,7 +22,7 @@ Organização: Jira (espaço SV, Scrum, sprints de 2 semanas). Uma branch e um P
 
 ### Sprint 3 (08/12 a 21/12/2026): Airflow coletando dados do PNCP
 - [x] SV-14 Explorar a API de consulta do PNCP e documentar os endpoints.
-- [ ] SV-15 Adicionar Airflow ao Docker Compose
+- [x] SV-15 Adicionar Airflow ao Docker Compose
 - [ ] SV-16 Criar DAG que coleta compras de saúde do PNCP
 - [ ] SV-17 Gravar os dados coletados no PostgreSQL
 - [ ] SV-18 Configurar retries e analisar logs de uma falha proposital
