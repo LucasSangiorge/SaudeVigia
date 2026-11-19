@@ -35,10 +35,10 @@ Objetivo: ter itens de saúde com preço real no banco, o suficiente para a Fase
 Decisão de 18/11/2026: o projeto passa a focar em IA generativa sobre os dados coletados (embeddings, RAG, agentes e MCP).
 Cada etapa começa pelo conceito, termina com teste e entra em produção pelo mesmo fluxo de PR e CI.
 
-- **Sprint 4: padronização com embeddings.** Gerar embeddings das descrições dos itens, guardar no PostgreSQL com pgvector e agrupar o mesmo produto escrito de formas diferentes (ex.: "DIPIRONA SÓDICA 500MG COMP" e "dipirona 500 mg comprimido").
-- **Sprint 5: comparação de preços.** Preço por produto padronizado e por órgão, preços fora do padrão e rotas na API (`/precos`, `/comparar`).
+- **Sprint 4: padronização com LLM e embeddings.** Primeiro, o LLM lê a descrição bagunçada e devolve JSON validado com Pydantic (saída estruturada: `princípio_ativo`, `dosagem`, `forma`, `unidade`). Depois, gerar embeddings das descrições, guardar no PostgreSQL com pgvector e agrupar o mesmo produto escrito de formas diferentes (ex.: "DIPIRONA SÓDICA 500MG COMP" e "dipirona 500 mg comprimido").
+- **Sprint 5: comparação de preços.** Preço mínimo, médio e máximo por produto padronizado e por órgão, calculados com SQL/pandas (o LLM não faz conta), preços fora do padrão e rotas na API (`/precos`, `/comparar`).
 - **Sprint 6: RAG sobre os editais.** Explorar os arquivos de edital no PNCP, quebrar em trechos, busca híbrida (palavra + vetor) e respostas citando a fonte.
-- **Sprint 7: agente com tool calling.** Pergunta em linguagem natural (rota `/perguntar`); o LLM escolhe as ferramentas (buscar preços, comparar órgãos, buscar no edital). Os números vêm do banco, nunca do LLM. Conjunto de avaliação com perguntas e respostas esperadas.
+- **Sprint 7: agente com LangGraph e tool calling.** Pergunta em linguagem natural (rota `/perguntar`); o LLM escolhe as ferramentas (buscar preços, comparar órgãos, buscar no edital). Os números vêm do banco, nunca do LLM. Conjunto de avaliação com perguntas e respostas esperadas.
 - **Sprint 8: servidor MCP e entrega.** Expor as ferramentas via MCP, README com como subir o ambiente, diagrama e demonstração.
 
 ### Fora do escopo (cortado para focar na IA)
@@ -46,7 +46,9 @@ Cada etapa começa pelo conceito, termina com teste e entra em produção pelo m
 - Alertas automáticos e análise de fornecedores
 - Coleta de outras cidades e modalidades além de pregão eletrônico em BH
 
+### Decisões tomadas
+- 19/11/2026: o agente usa **LangGraph** com tool calling (é o framework pedido nas vagas de IA generativa). O MeuAnalista já tem orquestração feita à mão; aqui o objetivo é aprender o framework.
+
 ### Decisões em aberto
 - Modelo de embedding: local e gratuito (ex.: sentence-transformers multilíngue) ou por API. O PC tem 4 núcleos e 16 GB.
-- Framework do agente: código próprio com a Claude API ou LangGraph.
 - Imagem do banco com pgvector (a imagem `postgres` oficial não traz a extensão).
