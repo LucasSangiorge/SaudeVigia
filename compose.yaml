@@ -26,9 +26,13 @@ x-airflow-common: &airflow-common
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "true"
     # Sem as dezenas de DAGs de exemplo (pesam no CPU e poluem a tela)
     AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+    # Deixa as DAGs importarem o nosso código: "from dados.pncp import ..."
+    PYTHONPATH: /opt/airflow
   volumes:
     # Nossas DAGs: o que você salvar em backend/dags aparece no Airflow
     - ./backend/dags:/opt/airflow/dags
+    # A lógica da coleta, usada pelas DAGs (a mesma testada no pytest)
+    - ./backend/dados:/opt/airflow/dados
     # Logs num volume do Docker, para não criar pastas soltas no projeto
     - airflow-logs:/opt/airflow/logs
   # Usuário padrão da imagem do Airflow (UID 50000), grupo root
