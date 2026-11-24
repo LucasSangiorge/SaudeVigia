@@ -10,3 +10,5 @@ psycopg[binary]==3.3.8
 alembic==1.20.1
 # lê as configurações do .env com validação
 pydantic-settings==2.16.2
+# LangChain + Gemini: conexão com o LLM e saída estruturada
+langchain-google-genai==4.5.2

@@ -24,31 +24,45 @@ Organização: Jira (espaço SV, Scrum, sprints de 2 semanas). Uma branch e um P
 Objetivo: ter itens de saúde com preço real no banco, o suficiente para a Fase 2.
 - [x] SV-14 Explorar a API de consulta do PNCP e documentar os endpoints.
 - [x] SV-15 Adicionar Airflow ao Docker Compose
-- [ ] SV-16 Criar DAG que coleta compras de saúde do PNCP (com retries; absorve a SV-18)
-- [ ] SV-17 Gravar os dados coletados no PostgreSQL
-- [ ] Coletar os itens e os resultados (preço homologado) de cada compra de saúde
-- [ ] SV-19 Testar o carregamento das DAGs no pytest e no CI
+- [x] SV-16 Criar DAG que coleta compras de saúde do PNCP (com retries; absorve a SV-18)
 - ~~SV-18 Configurar retries e analisar logs de uma falha proposital~~ (retries entram na SV-16)
 - ~~SV-20 Documentar no README como subir o ambiente~~ (vai para a documentação final)
 
-## Fase 2 — IA aplicada aos dados (foco do projeto)
-Decisão de 18/11/2026: o projeto passa a focar em IA generativa sobre os dados coletados (embeddings, RAG, agentes e MCP).
-Cada etapa começa pelo conceito, termina com teste e entra em produção pelo mesmo fluxo de PR e CI.
+**Pausado em 24/11/2026** (ver "Decisões tomadas"): a coleta continua funcionando, mas ainda não grava no banco. A DAG fica pausada no Airflow até a retomada.
+- [ ] SV-17 Gravar os dados coletados no PostgreSQL
+- [ ] Coletar os itens e os resultados (preço homologado) de cada compra de saúde
+- [ ] SV-19 Testar o carregamento das DAGs no pytest e no CI
 
-- **Sprint 4: padronização com LLM e embeddings.** Primeiro, o LLM lê a descrição bagunçada e devolve JSON validado com Pydantic (saída estruturada: `princípio_ativo`, `dosagem`, `forma`, `unidade`). Depois, gerar embeddings das descrições, guardar no PostgreSQL com pgvector e agrupar o mesmo produto escrito de formas diferentes (ex.: "DIPIRONA SÓDICA 500MG COMP" e "dipirona 500 mg comprimido").
-- **Sprint 5: comparação de preços.** Preço mínimo, médio e máximo por produto padronizado e por órgão, calculados com SQL/pandas (o LLM não faz conta), preços fora do padrão e rotas na API (`/precos`, `/comparar`).
-- **Sprint 6: RAG sobre os editais.** Explorar os arquivos de edital no PNCP, quebrar em trechos, busca híbrida (palavra + vetor) e respostas citando a fonte.
-- **Sprint 7: agente com LangGraph e tool calling.** Pergunta em linguagem natural (rota `/perguntar`); o LLM escolhe as ferramentas (buscar preços, comparar órgãos, buscar no edital). Os números vêm do banco, nunca do LLM. Conjunto de avaliação com perguntas e respostas esperadas.
-- **Sprint 8: servidor MCP e entrega.** Expor as ferramentas via MCP, README com como subir o ambiente, diagrama e demonstração.
+## Fase 2 — Camada de IA (foco atual)
+Decisão de 18/11/2026: o projeto passa a focar em IA generativa. Em 24/11/2026, a ordem mudou: a camada de IA vem antes de gravar os dados, e os agentes consultam a API do PNCP diretamente.
+Cada etapa começa pelo conceito, termina com teste (LLM falso: sem internet, sem chave, sem custo) e entra pelo mesmo fluxo de PR e CI.
 
-### Fora do escopo (cortado para focar na IA)
-- Frontend próprio (a demonstração é pela API, pelo MCP e pelo Swagger)
+- [ ] SV-22 Padronizar a descrição das compras com LLM (LangChain + saída estruturada). O LLM classifica o `objetoCompra` em categoria, saúde humana (sim/não) e produtos citados, validado com Pydantic. A regra por palavra-chave acha os candidatos e o LLM confirma: ela deixava passar compras de "medicamentos veterinários".
+- [ ] SV-23 Agente de compras com tool calling e LangGraph: a ferramenta busca as compras de saúde do dia no PNCP.
+- [ ] SV-24 Segundo agente (valores, com as contas em Python), roteador entre os dois e memória da conversa (estado do LangGraph).
+- [ ] SV-25 RAG sobre as descrições das compras: trechos, embeddings e busca por similaridade num vector store em memória (pgvector depois).
+- [ ] SV-26 Rota `POST /perguntar` na API.
+- [ ] SV-27 Tela de chat para as perguntas.
+
+### Depois (sujeito a ajustes)
+- Gravar os dados (SV-17) e trocar as ferramentas dos agentes para ler do banco.
+- Comparação de preços: mínimo, médio e máximo por produto e por órgão, calculados com SQL/pandas (o LLM não faz conta).
+- pgvector no PostgreSQL e RAG sobre os arquivos de edital, com respostas citando a fonte.
+- Conjunto de avaliação (evals) com perguntas e respostas esperadas.
+- Servidor MCP expondo as ferramentas.
+
+### Fora do escopo
 - Alertas automáticos e análise de fornecedores
 - Coleta de outras cidades e modalidades além de pregão eletrônico em BH
 
 ### Decisões tomadas
 - 19/11/2026: o agente usa **LangGraph** com tool calling (é o framework pedido nas vagas de IA generativa). O MeuAnalista já tem orquestração feita à mão; aqui o objetivo é aprender o framework.
+- 19/11/2026: LLM **Gemini** (plano gratuito do Google AI Studio) via LangChain; trocar de modelo muda só `ia/comum/llm.py`. No plano gratuito o Google pode usar os textos enviados, então só vão dados públicos do PNCP.
+- 24/11/2026: a SV-22 classifica a compra em vez de extrair princípio ativo e dosagem, porque o `objetoCompra` descreve a compra inteira ("aquisição de medicamentos para a secretaria"). Princípio ativo e dosagem ficam para quando os itens forem coletados.
+- 24/11/2026: a camada de IA vem antes de gravar os dados; a coleta no banco (SV-17) e a DAG ficam pausadas. Uma tela de chat simples volta ao escopo, para usar o agente.
 
 ### Decisões em aberto
-- Modelo de embedding: local e gratuito (ex.: sentence-transformers multilíngue) ou por API. O PC tem 4 núcleos e 16 GB.
+- Modelo de embedding: o do Gemini, por API, ou um local e gratuito (ex.: sentence-transformers multilíngue). O PC tem 4 núcleos e 16 GB.
+- Tecnologia da tela de chat (SV-27).
+- Onde o Airflow roda quando a coleta voltar: no notebook gravando no Neon, ou num servidor na nuvem.
 - Imagem do banco com pgvector (a imagem `postgres` oficial não traz a extensão).

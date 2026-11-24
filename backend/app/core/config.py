@@ -1,3 +1,4 @@
+from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy import URL
 
@@ -17,6 +18,9 @@ class Settings(BaseSettings):
     db_port: int = 5433
     # Local (Docker): prefer. Produção (Neon): require, conexão só com SSL
     db_sslmode: str = "prefer"
+    # Gemini: chave da API do LLM. Vazia por padrão porque o CI não tem a chave
+    # (os testes usam um LLM falso). SecretStr esconde o valor em print e logs.
+    google_api_key: SecretStr = SecretStr("")
 
     @property
     def database_url(self) -> str:
@@ -32,4 +36,4 @@ class Settings(BaseSettings):
         ).render_as_string(hide_password=False)
 
 
-settings = Settings()
+settings = Settings()  # pyright: ignore[reportCallIssue]  # campos vêm do .env
