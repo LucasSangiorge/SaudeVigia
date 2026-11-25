@@ -43,6 +43,7 @@ Cada etapa começa pelo conceito, termina com teste (LLM falso: sem internet, se
 - [ ] SV-25 RAG sobre as descrições das compras: trechos, embeddings e busca por similaridade num vector store em memória (pgvector depois).
 - [ ] SV-26 Rota `POST /perguntar` na API.
 - [ ] SV-27 Tela de chat para as perguntas.
+- [x] SV-28 Descartar não humana
 
 ### Depois (sujeito a ajustes)
 - Gravar os dados (SV-17) e trocar as ferramentas dos agentes para ler do banco.
