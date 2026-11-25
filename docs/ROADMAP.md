@@ -38,7 +38,7 @@ Decisão de 18/11/2026: o projeto passa a focar em IA generativa. Em 24/11/2026,
 Cada etapa começa pelo conceito, termina com teste (LLM falso: sem internet, sem chave, sem custo) e entra pelo mesmo fluxo de PR e CI.
 
 - [x] SV-22 Padronizar a descrição das compras com LLM (LangChain + saída estruturada). O LLM classifica o `objetoCompra` em categoria, saúde humana (sim/não) e produtos citados, validado com Pydantic. A regra por palavra-chave acha os candidatos e o LLM confirma: ela deixava passar compras de "medicamentos veterinários".
-- [ ] SV-23 Agente de compras com tool calling e LangGraph: a ferramenta busca as compras de saúde do dia no PNCP.
+- [x] SV-23 Agente de compras com tool calling e LangGraph: a ferramenta busca as compras de saúde do dia no PNCP.
 - [ ] SV-24 Segundo agente (valores, com as contas em Python), roteador entre os dois e memória da conversa (estado do LangGraph).
 - [ ] SV-25 RAG sobre as descrições das compras: trechos, embeddings e busca por similaridade num vector store em memória (pgvector depois).
 - [ ] SV-26 Rota `POST /perguntar` na API.
