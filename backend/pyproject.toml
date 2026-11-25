@@ -6,8 +6,13 @@ target-version = "py314"
 select = ["E", "F", "I", "B", "UP"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["app"]
+# Pastas do próprio projeto: o Ruff as agrupa por último nos imports
+known-first-party = ["app", "dados", "ia"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
+# Testes em pastas que espelham o código (tests/app, tests/dados, tests/ia...).
+# importlib permite arquivos de teste com o mesmo nome em pastas diferentes,
+# sem precisar de __init__.py (modo recomendado pelo pytest para projetos novos).
+addopts = ["--import-mode=importlib"]
