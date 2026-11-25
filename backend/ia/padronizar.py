@@ -11,7 +11,7 @@ from langchain_core.language_models import BaseChatModel
 from pydantic import BaseModel, Field
 
 INSTRUCOES = (
-    "Você classifica compras públicas brasileiras a partir da descrição do objeto."
+    "Você classifica compras públicas brasileiras a partir da descrição do objeto. "
     "Responda só com base no texto. Não invente produtos que não estão escritos."
 )
 
@@ -20,7 +20,7 @@ Categoria = Literal["medicamento", "equipamento", "material_medico", "outro"]
 
 
 class ClassificacaoCompra(BaseModel):
-    """O formulario que o LLM é obrigado a preencher."""
+    """O formulário que o LLM é obrigado a preencher."""
 
     categoria: Categoria = Field(
         description="Tipo principal do que está sendo comprado."
@@ -30,12 +30,12 @@ class ClassificacaoCompra(BaseModel):
         "False se for veterinária ou não for de saúde."
     )
     produtos: list[str] = Field(
-        description="Produtos citados no texto, lista vazia se não citar nenhum"
+        description="Produtos citados no texto, lista vazia se não citar nenhum."
     )
 
 
 def classificar_compra(llm: BaseChatModel, objeto: str) -> ClassificacaoCompra:
-    """Pede ao LLM a classificação do texto da compra, já validada pelo Pydantic"""
+    """Pede ao LLM a classificação do texto da compra, já validada pelo Pydantic."""
     llm_estruturado = llm.with_structured_output(ClassificacaoCompra)
     resultado = llm_estruturado.invoke([("system", INSTRUCOES), ("human", objeto)])
     return ClassificacaoCompra.model_validate(resultado)
