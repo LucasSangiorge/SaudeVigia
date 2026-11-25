@@ -1,5 +1,6 @@
 """Testes do agente de compras com LLM e PNCP falsos: sem internet e sem custo."""
 
+import pytest
 from langchain_core.language_models.fake_chat_models import GenericFakeChatModel
 from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 
@@ -15,9 +16,12 @@ class LLMFalso(GenericFakeChatModel):
         return self
 
 
-def test_agente_chama_a_ferramenta_e_responde(monkeypatch, compra_de_saude):
+@pytest.mark.usefixtures("classificacao_falsa")
+def test_agente_chama_ferramenta_e_responde(monkeypatch, compra_de_saude):
     monkeypatch.setattr(
-        ferramentas, "buscar_compras_do_dia", lambda cliente, dia: [compra_de_saude]
+        ferramentas,
+        "buscar_compras_do_dia",
+        lambda cliente, dia: [compra_de_saude],
     )
     llm = LLMFalso(
         messages=iter(
@@ -36,12 +40,10 @@ def test_agente_chama_a_ferramenta_e_responde(monkeypatch, compra_de_saude):
             ]
         )
     )
-
     resultado = criar_agente(llm).invoke(
         {"messages": [HumanMessage("Teve compra de saúde no dia 18/11/2026?")]}
     )
     mensagens = resultado["messages"]
-
     assert len(mensagens) == 4
     assert isinstance(mensagens[2], ToolMessage)
     assert "PREFEITURA DE BELO HORIZONTE" in mensagens[2].text
@@ -50,9 +52,7 @@ def test_agente_chama_a_ferramenta_e_responde(monkeypatch, compra_de_saude):
 
 def test_agente_responde_direto_quando_nao_precisa_de_ferramenta():
     llm = LLMFalso(messages=iter([AIMessage(content="Olá! Pergunte sobre compras.")]))
-
     resultado = criar_agente(llm).invoke({"messages": [HumanMessage("Oi")]})
     mensagens = resultado["messages"]
-
     assert len(mensagens) == 2
     assert mensagens[-1].text == "Olá! Pergunte sobre compras."

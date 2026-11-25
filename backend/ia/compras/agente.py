@@ -11,14 +11,13 @@ from langchain_core.messages import SystemMessage
 from langgraph.graph import END, START, MessagesState, StateGraph
 from langgraph.prebuilt import ToolNode, tools_condition
 
-from ia.compras.ferramentas import buscar_compras_de_saude
-
-FERRAMENTAS = [buscar_compras_de_saude]
+from ia.compras.ferramentas import criar_ferramentas
 
 
 def criar_agente(llm: BaseChatModel):
     """Monta o grafo do agente com o LLM recebido (o Gemini ou o falso dos testes)."""
-    llm_com_ferramentas = llm.bind_tools(FERRAMENTAS)
+    ferramentas = criar_ferramentas(llm)
+    llm_com_ferramentas = llm.bind_tools(ferramentas)
 
     def chamar_llm(state: MessagesState) -> dict:
         """NÓ "llm": lê as mensagens e decide (responder ou pedir ferramentas)."""
@@ -32,7 +31,7 @@ def criar_agente(llm: BaseChatModel):
 
     grafo = StateGraph(MessagesState)
     grafo.add_node("llm", chamar_llm)
-    grafo.add_node("ferramentas", ToolNode(FERRAMENTAS))
+    grafo.add_node("ferramentas", ToolNode(ferramentas))
     grafo.add_edge(START, "llm")
     grafo.add_conditional_edges(
         "llm", tools_condition, {"tools": "ferramentas", END: END}
