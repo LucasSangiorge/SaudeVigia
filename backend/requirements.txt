@@ -12,3 +12,6 @@ alembic==1.20.1
 pydantic-settings==2.16.2
 # LangChain + Gemini: conexão com o LLM e saída estruturada
 langchain-google-genai==4.5.2
+# LangGraph: monta o fluxo do agente (nós, arestas e estado)
+langgraph==1.2.24
+
