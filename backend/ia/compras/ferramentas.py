@@ -1,4 +1,5 @@
 """Ferramentas (tools) do agente de compras: as "mãos" que o LLM pode pedir para usar.
+
 O LLM não executa nada: ele pede a ferramenta, o nosso código executa
 e devolve o resultado para ele ler.
 """
@@ -14,6 +15,7 @@ from ia.padronizar import classificar_compra
 
 AVISO_PNCP_FORA = "O PNCP não respondeu agora. Tente de novo em alguns minutos."
 AVISO_LLM_FORA = "Não consegui confirmar as compras agora. Tente de novo em instantes."
+AVISO_NENHUMA_COMPRA = "Nenhuma compra de saúde humana foi publicada nesse dia."
 
 
 def resumir_compras(compras: list[dict]) -> list[dict]:
@@ -41,7 +43,7 @@ def criar_ferramentas(llm: BaseChatModel) -> list[BaseTool]:
 
     @tool
     def buscar_compras_de_saude(dia: date) -> list[dict] | str:
-        """Busca as compras de saúde (pregão eletrônico de Belo Horizonte)
+        """Busca as compras de saúde humana (pregão eletrônico de Belo Horizonte)
         publicadas no PNCP em um dia. Use quando o usuário perguntar o que foi
         comprado, ou se houver compra de saúde, numa data."""
         try:
@@ -54,6 +56,9 @@ def criar_ferramentas(llm: BaseChatModel) -> list[BaseTool]:
             humanas = manter_saude_humana(llm, filtrar_saude(compras))
         except Exception:  # LLM fora do ar ou cota esgotada: avisa em vez de quebrar
             return AVISO_LLM_FORA
+
+        if not humanas:  # lista vazia é ambígua para o LLM: dizemos o que aconteceu
+            return AVISO_NENHUMA_COMPRA
 
         return resumir_compras(humanas)
 

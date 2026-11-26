@@ -75,3 +75,17 @@ def test_buscar_compras_de_saude_avisa_quando_o_llm_falha(
     resultado = buscar_compras_de_saude.invoke({"dia": "2026-11-18"})
 
     assert resultado == ferramentas.AVISO_LLM_FORA
+
+
+@pytest.mark.usefixtures("classificacao_falsa")
+def test_buscar_compras_de_saude_avisa_quando_nao_ha_compra_humana(
+    monkeypatch, llm_sem_uso, compra_veterinaria
+):
+    monkeypatch.setattr(
+        ferramentas, "buscar_compras_do_dia", lambda cliente, dia: [compra_veterinaria]
+    )
+    [buscar_compras_de_saude] = ferramentas.criar_ferramentas(llm_sem_uso)
+
+    resultado = buscar_compras_de_saude.invoke({"dia": "2026-11-18"})
+
+    assert resultado == ferramentas.AVISO_NENHUMA_COMPRA
